@@ -1,0 +1,16 @@
+INTERVIEW_PREP.md
+__pycache__/
+*.pyc
+.DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+
+# Kubernetes
+.kube/
+kubeconfig
