@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitops-demo-app-svc
+  labels:
+    app: gitops-demo-app
+spec:
+  # LoadBalancer automatically provisions a cloud load balancer (if on AWS/GCP)
+  # Or exposes it externally on localhost if using Minikube tunnel / Docker Desktop
+  type: LoadBalancer
+  selector:
+    app: gitops-demo-app
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
