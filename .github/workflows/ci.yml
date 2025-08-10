@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+# This workflow triggers whenever we push code to the 'main' branch,
+# EXCEPT when we are only changing the k8s manifests, terraform files, or documentation.
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'k8s/**'
+      - 'terraform/**'
+      - 'README.md'
+      - 'INTERVIEW_PREP.md'
+      - '.gitignore'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🐳 Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🔨 Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # We tag the image with the unique Git Commit SHA so every build has a distinct version
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/gitops-demo-app:${{ github.sha }}
+
+      - name: 🔄 Update Kubernetes Manifests (The GitOps Way)
+        run: |
+          # 1. Update the local deployment.yaml file with the specific new image tag we just built
+          sed -i "s|image: .*/gitops-demo-app:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/gitops-demo-app:${{ github.sha }}|g" k8s/deployment.yaml
+          
+          # 2. Configure Git to commit as the GitHub Actions Bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 3. Commit the updated manifest file directly back to this repository
+          git add k8s/deployment.yaml
+          git commit -m "auto: deploy image tag ${{ github.sha }}"
+          
+          # 4. Push! Once pushed, ArgoCD will instantly detect this commit and sync the cluster!
+          git push
