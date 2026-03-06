@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-demo-app
+  namespace: argocd
+  # Add a finalizer. This ensures that if we delete this Application from ArgoCD, 
+  # ArgoCD will also clean up all the Kubernetes resources (Pods, Services) it created.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # ⚠️ CHANGE THIS TO YOUR GITHUB REPOSITORY URL! ⚠️
+    repoURL: 'https://github.com/ajayautade/gitops-argocd-app.git'
+    targetRevision: HEAD
+    
+    # We tell ArgoCD to look inside the 'k8s' directory for our manifests
+    path: k8s
+  
+  # Deploy to the same cluster where ArgoCD is running
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+    
+  # Enable Auto-Sync: The absolute core of GitOps!
+  syncPolicy:
+    automated:
+      prune: true     # Automatically delete things in K8s if they are deleted from Git
+      selfHeal: true  # Automatically fix things in K8s if someone manually changes them
+    syncOptions:
+      - CreateNamespace=true
