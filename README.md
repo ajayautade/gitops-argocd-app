@@ -9,7 +9,8 @@ This project is not just a simple web app. It is a fully automated, professional
 1. **Infrastructure as Code:** Uses **Terraform** to automatically build a highly available AWS Virtual Private Cloud (VPC) and an Amazon EKS (Kubernetes) cluster.
 2. **Bootstrapping Layer:** Terraform automatically leverages Helm to install **ArgoCD** (for GitOps) and the **Prometheus + Grafana** stack (for monitoring) the moment the cluster is ready.
 3. **Application Containerization:** A Python Flask API packaged in a highly optimized, secure Alpine Docker image.
-4. **GitOps CD Pipeline:** ArgoCD continuously monitors this Git repository. When new code or Kubernetes manifests are pushed to the `main` branch, ArgoCD instantly detects the changes and automatically syncs the live EKS cluster, guaranteeing zero configuration drift.
+4. **Continuous Integration (CI):** A **GitHub Actions** pipeline that automatically builds a new Docker image and pushes it to DockerHub every time new code is merged.
+5. **GitOps CD Pipeline:** ArgoCD continuously monitors this Git repository. When GitHub Actions updates the Kubernetes manifests with the new image tag, ArgoCD instantly detects the changes and automatically syncs the live EKS cluster, guaranteeing zero configuration drift.
 
 ---
 
@@ -31,7 +32,13 @@ Terraform will output a command to configure your local terminal. It looks like 
 aws eks --region ap-south-1 update-kubeconfig --name gitops-argocd-cluster
 ```
 
-### Step 3: Access your DevOps Tools
+### Step 3: Configure CI/CD Secrets
+To allow GitHub Actions to build and push your Docker image automatically:
+1. Go to your GitHub Repository Settings -> Secrets and variables -> Actions
+2. Add `DOCKERHUB_USERNAME` (Your Docker Hub username)
+3. Add `DOCKERHUB_TOKEN` (An access token generated from Docker Hub)
+
+### Step 4: Access your DevOps Tools
 You can now log into the tools Terraform automatically installed for you:
 
 **ArgoCD:**
@@ -49,7 +56,7 @@ kubectl get svc kube-prometheus-stack-grafana -n monitoring
 # Username: admin | Password: admin
 ```
 
-### Step 4: Deploy the App via GitOps
+### Step 5: Deploy the App via GitOps
 Now that your AWS infrastructure is running, tell ArgoCD to deploy this repository!
 
 1. Update `argocd-app.yaml` with your own GitHub repository URL (if you forked this).
@@ -59,7 +66,7 @@ kubectl apply -f argocd-app.yaml
 ```
 
 **Boom! 🚀** 
-ArgoCD will read the `k8s/` folder in this repo and automatically deploy the Python API to your EKS cluster. If you edit `k8s/deployment.yaml` and run `git push`, ArgoCD will automatically roll out the changes without you ever touching the cluster!
+ArgoCD will read the `k8s/` folder in this repo and automatically deploy the Python API to your EKS cluster. If you edit the `app.py` Python code and run `git push`, the GitHub Actions CI pipeline will automatically build the new image, update the K8s manifest, and ArgoCD will automatically roll out the changes without you ever touching the cluster!
 
 ---
 
