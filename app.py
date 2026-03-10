@@ -9,7 +9,7 @@ def home():
     environment = os.environ.get('APP_ENV', 'development')
     
     return jsonify({
-        "message": "Welcome to the GitOps Demo App By Ajay Bhai! 🚀",
+        "message": "Welcome to the GitOps Demo App By Ajay Bhai! - Version 1.0.1 🚀",
         "version": version,
         "environment": environment,
         "status": "Healthy"
