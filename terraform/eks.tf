@@ -8,7 +8,7 @@ module "eks" {
   version = "~> 19.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.29"
+  cluster_version = "1.30" # EKS only allows upgrading one minor version at a time
 
   # Connect the cluster to our newly created VPC and Subnets
   vpc_id                   = module.vpc.vpc_id
@@ -24,9 +24,12 @@ module "eks" {
       min_size     = 1
       max_size     = 3
       desired_size = 2
-      
-      instance_types = ["t3.medium"] # t3.medium is the minimum recommended size for EKS
+
+      instance_types = ["t3.small"] # 2 GB RAM minimum needed for K8s + ArgoCD + Monitoring
       capacity_type  = "ON_DEMAND"
+
+      # Use AL2023 - AWS retired the old Amazon Linux 2 (AL2) EKS AMIs in November 2025
+      ami_type = "AL2023_x86_64_STANDARD"
     }
   }
 

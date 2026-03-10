@@ -23,6 +23,8 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   version    = "5.46.7"  # Use a stable version
   namespace  = kubernetes_namespace.argocd.metadata[0].name
+  wait       = false     # Don't block Terraform waiting for all pods
+  timeout    = 600       # 10 minute timeout
 
   # Expose the ArgoCD UI natively using a LoadBalancer instead of port-forwarding
   set {

@@ -21,6 +21,8 @@ resource "helm_release" "kube-prometheus-stack" {
   chart      = "kube-prometheus-stack"
   namespace  = kubernetes_namespace.monitoring.metadata[0].name
   version    = "56.6.2" # Stable version
+  wait       = false    # Don't block Terraform waiting for all pods
+  timeout    = 600      # 10 minute timeout
 
   # Expose Grafana via a LoadBalancer so we can access the dashboards easily
   set {
