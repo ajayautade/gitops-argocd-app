@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: gitops-demo-app
-        image: yourdockerhubusername/gitops-demo-app:v1.0.0 # We will push the image here
+        image: ajayautade/gitops-demo-app:3572fb5fbc62d0a80b311553aa0bb2c2cb423703
         ports:
         - containerPort: 8080
         env:
