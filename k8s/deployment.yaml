@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: gitops-demo-app
-        image: ajayautade/gitops-demo-app:3572fb5fbc62d0a80b311553aa0bb2c2cb423703
+        image: ajayautade/gitops-demo-app:5c45c7b3e7d1001530212ba8c5b201b40c996bcc
         ports:
         - containerPort: 8080
         env:
